@@ -24,7 +24,7 @@
   <groupId>org.apache.zeppelin</groupId>
   <artifactId>zeppelin</artifactId>
   <packaging>pom</packaging>
-  <version>0.7.3</version>
+  <version>0.7.3_skil-1.0.1</version>
   <name>Zeppelin</name>
   <description>Zeppelin project</description>
   <url>http://zeppelin.apache.org</url>
@@ -48,6 +48,13 @@
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/zeppelin.git</connection>
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/zeppelin.git</developerConnection>
   </scm>
+
+      <distributionManagement>
+        <repository>
+            <id>skymind-nexus</id>
+            <url>https://nexus.skymind.io/repository/skil/</url>
+        </repository>
+    </distributionManagement>
 
   <inceptionYear>2013</inceptionYear>
 

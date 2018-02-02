@@ -81,7 +81,9 @@ public class CorsFilter implements Filter {
         DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, new Locale("EN", "en"));
     response.setHeader("Date", fullDateFormatEN.format(new Date()));
     ZeppelinConfiguration zeppelinConfiguration = ZeppelinConfiguration.create();
-    response.setHeader("X-FRAME-OPTIONS", zeppelinConfiguration.getXFrameOptions());
+    // EMG: We use SKIL inside an iframe.  
+    // But we don't know what the origin is until the user accesses it.
+    //response.setHeader("X-FRAME-OPTIONS", zeppelinConfiguration.getXFrameOptions());
     if (zeppelinConfiguration.useSsl()) {
       response.setHeader("Strict-Transport-Security", zeppelinConfiguration.getStrictTransport());
     }
