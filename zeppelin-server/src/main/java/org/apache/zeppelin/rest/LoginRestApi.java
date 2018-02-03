@@ -16,6 +16,7 @@
  */
 package org.apache.zeppelin.rest;
 
+import io.skymind.auth.JWTUtil;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
 import org.apache.zeppelin.annotation.ZeppelinApi;
@@ -26,10 +27,7 @@ import org.apache.zeppelin.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,6 +49,31 @@ public class LoginRestApi {
     super();
   }
 
+  @GET
+  @ZeppelinApi
+  public Response login(@HeaderParam("token") String token1) {
+    JsonResponse response = null;
+
+    if (token1 == null) {
+      response = new JsonResponse(Response.Status.FORBIDDEN, "", "");
+    } else if (JWTUtil.isValidToken(token1)){
+      UsernamePasswordToken token = new UsernamePasswordToken("admin", "admin");
+      //      token.setRememberMe(true);
+      Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
+      currentUser.getSession().stop();
+      currentUser.getSession(true);
+      currentUser.login(token);
+      String principal = SecurityUtils.getPrincipal();
+      HashSet<String> roles = SecurityUtils.getRoles();
+      String ticket = TicketContainer.instance.getTicket(principal);
+      Map<String, String> data = new HashMap<>();
+      data.put("principal", principal);
+      data.put("roles", roles.toString());
+      data.put("ticket", ticket);
+      response = new JsonResponse(Response.Status.OK, "", data);
+    }
+    return response.build();
+  }
 
   /**
    * Post Login
