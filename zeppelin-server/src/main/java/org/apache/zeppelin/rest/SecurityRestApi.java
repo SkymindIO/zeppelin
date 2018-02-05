@@ -23,6 +23,7 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.realm.ldap.JndiLdapRealm;
 import org.apache.shiro.realm.text.IniRealm;
+import org.apache.shiro.subject.Subject;
 import org.apache.zeppelin.annotation.ZeppelinApi;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.realm.ActiveDirectoryGroupRealm;
@@ -33,10 +34,7 @@ import org.apache.zeppelin.utils.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
@@ -66,7 +64,14 @@ public class SecurityRestApi {
   @GET
   @Path("ticket")
   @ZeppelinApi
-  public Response ticket() {
+  public Response ticket(@HeaderParam("token") String token1) {
+    if (token1 == null || token1.isEmpty() && LoginRestApi.isLoginRequestFromSKIL) {
+      Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
+      TicketContainer.instance.removeTicket(SecurityUtils.getPrincipal());
+      currentUser.getSession().stop();
+      currentUser.logout();
+      LoginRestApi.isLoginRequestFromSKIL = false;
+    }
     ZeppelinConfiguration conf = ZeppelinConfiguration.create();
     String principal = SecurityUtils.getPrincipal();
     HashSet<String> roles = SecurityUtils.getRoles();

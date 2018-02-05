@@ -41,6 +41,8 @@ import java.util.Map;
 @Produces("application/json")
 public class LoginRestApi {
   private static final Logger LOG = LoggerFactory.getLogger(LoginRestApi.class);
+  // determine the login request is from SKIL using token or from LogIn form(normal case)
+  public static boolean isLoginRequestFromSKIL;
 
   /**
    * Required by Swagger.
@@ -56,6 +58,7 @@ public class LoginRestApi {
 
     if (token1 == null) {
       response = new JsonResponse(Response.Status.FORBIDDEN, "", "");
+      isLoginRequestFromSKIL = false;
     } else if (JWTUtil.isValidToken(token1)){
       UsernamePasswordToken token = new UsernamePasswordToken("admin", "admin");
       //      token.setRememberMe(true);
@@ -71,6 +74,7 @@ public class LoginRestApi {
       data.put("roles", roles.toString());
       data.put("ticket", ticket);
       response = new JsonResponse(Response.Status.OK, "", data);
+      isLoginRequestFromSKIL = true;
     }
     return response.build();
   }
