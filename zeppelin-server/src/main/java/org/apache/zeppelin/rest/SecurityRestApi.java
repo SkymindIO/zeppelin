@@ -65,13 +65,17 @@ public class SecurityRestApi {
   @Path("ticket")
   @ZeppelinApi
   public Response ticket(@HeaderParam("token") String token1) {
-    if (token1 == null || token1.isEmpty() && LoginRestApi.isLoginRequestFromSKIL) {
+    // token is not exist in request headers and haven't logged in via login form
+    // it will be logged out. it's not a valid request.
+    if ((token1 == null || token1.isEmpty())
+            && !LoginRestApi.existSource(LoginRestApi.LoginSource.LOGIN_FORM)) {
       Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
       TicketContainer.instance.removeTicket(SecurityUtils.getPrincipal());
       currentUser.getSession().stop();
       currentUser.logout();
-      LoginRestApi.isLoginRequestFromSKIL = false;
+      return new JsonResponse(Response.Status.FORBIDDEN, "", "").build();
     }
+
     ZeppelinConfiguration conf = ZeppelinConfiguration.create();
     String principal = SecurityUtils.getPrincipal();
     HashSet<String> roles = SecurityUtils.getRoles();

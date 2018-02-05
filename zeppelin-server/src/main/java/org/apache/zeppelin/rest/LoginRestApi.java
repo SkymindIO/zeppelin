@@ -29,9 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created for org.apache.zeppelin.rest.message on 17/03/16.
@@ -40,15 +38,65 @@ import java.util.Map;
 @Path("/login")
 @Produces("application/json")
 public class LoginRestApi {
+
+  /**
+   * Enum for Login Source especially in log-in success cases
+   * SKIL_TOKEN : login success from SKIL using token
+   * SKIL_API : login success from SKIL using user name and password
+   * LOGIN_FORM : login success from Zeppelin login form
+   */
+  public enum LoginSource {
+    SKIL_TOKEN("skil_token"),
+    SKIL_API("skil_api"),
+    LOGIN_FORM("login_form");
+
+    private String name;
+
+    LoginSource(String name) {
+      this.name = name;
+    }
+
+    public String toString() {
+      return this.name;
+    }
+
+    public static LoginSource from(String from) {
+      if (SKIL_TOKEN.name.equals(from)) {
+        return SKIL_TOKEN;
+      } else if (SKIL_API.name.equals(from)) {
+        return SKIL_API;
+      } else if (LOGIN_FORM.name.equals(from)) {
+        return LOGIN_FORM;
+      } else {
+        return null;
+      }
+    }
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(LoginRestApi.class);
-  // determine the login request is from SKIL using token or from LogIn form(normal case)
-  public static boolean isLoginRequestFromSKIL;
+  private static List<LoginSource> loginSuccessList = new ArrayList<>();
 
   /**
    * Required by Swagger.
    */
   public LoginRestApi() {
     super();
+  }
+
+  public void addSource(LoginSource loginSource) {
+    if (!loginSuccessList.contains(loginSource)) {
+      loginSuccessList.add(loginSource);
+    }
+  }
+
+  public void removeSource(LoginSource loginSource) {
+    if (loginSuccessList.contains(loginSource)) {
+      loginSuccessList.remove(loginSource);
+    }
+  }
+
+  public static boolean existSource(LoginSource loginSource) {
+    return loginSuccessList.contains(loginSource);
   }
 
   @GET
@@ -58,7 +106,6 @@ public class LoginRestApi {
 
     if (token1 == null) {
       response = new JsonResponse(Response.Status.FORBIDDEN, "", "");
-      isLoginRequestFromSKIL = false;
     } else if (JWTUtil.isValidToken(token1)){
       UsernamePasswordToken token = new UsernamePasswordToken("admin", "admin");
       //      token.setRememberMe(true);
@@ -74,7 +121,7 @@ public class LoginRestApi {
       data.put("roles", roles.toString());
       data.put("ticket", ticket);
       response = new JsonResponse(Response.Status.OK, "", data);
-      isLoginRequestFromSKIL = true;
+      this.addSource(LoginSource.SKIL_TOKEN);
     }
     return response.build();
   }
@@ -90,7 +137,8 @@ public class LoginRestApi {
   @POST
   @ZeppelinApi
   public Response postLogin(@FormParam("userName") String userName,
-                            @FormParam("password") String password) {
+                            @FormParam("password") String password,
+                            @HeaderParam("authorization") String authHeader) {
     JsonResponse response = null;
     // ticket set to anonymous for anonymous user. Simplify testing.
     Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
@@ -124,6 +172,25 @@ public class LoginRestApi {
         
         //set roles for user in NotebookAuthorization module
         NotebookAuthorization.getInstance().setRoles(principal, roles);
+
+        // check post login request come from Zeppelin login form or SKIL apis
+        if (authHeader == null || authHeader.isEmpty()) {
+          this.addSource(LoginSource.LOGIN_FORM);
+        } else {
+          // check if the auth header is valid or not
+          String[] splitAuthHeader = authHeader.split(" ");
+          String errMsg = null;
+          if (splitAuthHeader.length != 2) {
+            errMsg = "NOT a valid authorization header for SKIL apis access";
+            throw new AuthenticationException(errMsg);
+          } else if (JWTUtil.isValidToken(splitAuthHeader[1])){
+            errMsg = "NOT a valid JWT token in the authorization header for SKIL apis access";
+            throw new AuthenticationException(errMsg);
+          }
+
+          this.addSource(LoginSource.SKIL_API);
+        }
+
       } catch (UnknownAccountException uae) {
         //username wasn't in the system, show them an error message?
         LOG.error("Exception in login: ", uae);
@@ -158,6 +225,7 @@ public class LoginRestApi {
     currentUser.logout();
     response = new JsonResponse(Response.Status.UNAUTHORIZED, "", "");
     LOG.warn(response.toString());
+    this.removeSource(LoginSource.LOGIN_FORM);
     return response.build();
   }
 
