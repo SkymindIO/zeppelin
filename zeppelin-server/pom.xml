@@ -397,7 +397,7 @@
     <dependency>
       <groupId>io.skymind</groupId>
       <artifactId>skil-auth</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2</version>
       <exclusions>
         <exclusion>
           <groupId>com.typesafe.play</groupId>

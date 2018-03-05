@@ -49,12 +49,20 @@
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/zeppelin.git</developerConnection>
   </scm>
 
-      <distributionManagement>
-        <repository>
-            <id>skymind-nexus</id>
-            <url>https://nexus.skymind.io/repository/skil/</url>
-        </repository>
-    </distributionManagement>
+  <repositories>
+    <repository>
+      <id>skymind-nexus</id>
+      <name>Skymind Nexus SKIL</name>
+      <url>https://nexus.skymind.io/repository/skil/</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>skymind-nexus</id>
+      <url>https://nexus.skymind.io/repository/skil-staging/</url>
+    </repository>
+  </distributionManagement>
 
   <inceptionYear>2013</inceptionYear>
 
