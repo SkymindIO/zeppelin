@@ -137,6 +137,7 @@ var zeppelinWebApp = angular.module('zeppelinWebApp', [
   .constant('TRASH_FOLDER_ID', '~Trash');
 
 function auth() {
+  var token = getUrlVars()['token'];
   var $http = angular.injector(['ng']).get('$http');
   var baseUrlSrv = angular.injector(['zeppelinWebApp']).get('baseUrlSrv');
   // withCredentials when running locally via grunt
@@ -148,13 +149,23 @@ function auth() {
     },
     crossDomain: true
   });
-  return $http.get(baseUrlSrv.getRestApiBase() + '/security/ticket').then(function(response) {
+  return $http.get(baseUrlSrv.getRestApiBase() + '/security/ticket',
+    {headers: {'token': token}}).then(function(response) {
     zeppelinWebApp.run(function($rootScope) {
       $rootScope.ticket = angular.fromJson(response.data).body;
     });
   }, function(errorResponse) {
     // Handle error case
   });
+}
+
+function getUrlVars() {
+  var vars = {};
+  window.location.href.replace(/[?&]+([^=&]+)=([^&]*)#/gi,
+    function(m,key,value) {
+      vars[key] = value;
+    });
+  return vars;
 }
 
 function bootstrapApplication() {
