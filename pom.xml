@@ -499,7 +499,7 @@
         </configuration>
       </plugin>
 
-      <plugin>
+    <!--  <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>${plugin.enforcer.version}</version>
         <executions>
@@ -516,7 +516,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
