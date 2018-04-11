@@ -148,6 +148,8 @@
 
     <PermGen>64m</PermGen>
     <MaxPermGen>512m</MaxPermGen>
+
+    <skil-version>1.0.2</skil-version>
   </properties>
 
   <dependencyManagement>
