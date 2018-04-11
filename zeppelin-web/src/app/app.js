@@ -161,7 +161,7 @@ function auth() {
 
 function getUrlVars() {
   var vars = {};
-  window.location.href.replace(/[?&]+([^=&]+)=([^&]*)#/gi,
+  window.location.href.replace(/[?&]+([^=&]+)=([^&]*)&asIframe#/gi,
     function(m,key,value) {
       vars[key] = value;
     });
