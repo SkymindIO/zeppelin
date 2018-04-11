@@ -183,7 +183,7 @@ public class LoginRestApi {
           if (splitAuthHeader.length != 2) {
             errMsg = "NOT a valid authorization header for SKIL apis access";
             throw new AuthenticationException(errMsg);
-          } else if (JWTUtil.isValidToken(splitAuthHeader[1])){
+          } else if (!JWTUtil.isValidToken(splitAuthHeader[1])){
             errMsg = "NOT a valid JWT token in the authorization header for SKIL apis access";
             throw new AuthenticationException(errMsg);
           }
