@@ -297,6 +297,8 @@ function NotebookCtrl($scope, $route, $routeParams, $location, $rootScope,
             };
           });
           websocketMsgSrv.runAllParagraphs(noteId, paragraphs);
+          // analytics
+          window.gaEvent('Interact/ParagraphRunAll', $scope.note.name, '1');
         }
       }
     });

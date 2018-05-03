@@ -247,6 +247,9 @@ function ParagraphCtrl($scope, $rootScope, $route, $window, $routeParams, $locat
       openEditorAndOpenTable($scope.paragraph);
     }
     editorSetting.isOutputHidden = $scope.paragraph.config.editorSetting.editOnDblClick;
+    
+    // analytics
+    window.gaEvent('Interact/ParagraphRun', $scope.$parent.note.name, '1');
   };
 
   $scope.saveParagraph = function(paragraph) {
