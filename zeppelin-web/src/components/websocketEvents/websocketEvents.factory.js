@@ -60,16 +60,8 @@ function websocketEvents($rootScope, $websocket, $location, baseUrlSrv) {
     if (op === 'NOTE') {
       $rootScope.$broadcast('setNoteContent', data.note);
       // analytics
-      try {
-        window.ga('send', {
-          hitType: 'event',
-          eventCategory: 'Zeppelin',
-          eventAction: 'View/Notebook',
-          eventLabel: data.note.name
-        });
-      } catch(e) {
-        console.log('Could not capture NOTE event.', e);
-      }
+      window.gaEvent('View/Notebook', data.note.name, '1');
+
     } else if (op === 'NEW_NOTE') {
       $location.path('/notebook/' + data.note.id);
     } else if (op === 'NOTES_INFO') {
@@ -123,16 +115,8 @@ function websocketEvents($rootScope, $websocket, $location, baseUrlSrv) {
     } else if (op === 'PARAGRAPH_APPEND_OUTPUT') {
       $rootScope.$broadcast('appendParagraphOutput', data);
       // analytics
-      try {
-        window.ga('send', {
-          hitType: 'event',
-          eventCategory: 'Zeppelin',
-          eventAction: 'Interact/ParagraphOutput',
-          eventLabel: data.note.name
-        });
-      } catch(e) {
-        console.log('Could not capture PARAGRAPH_APPEND_OUTPUT event.', e);
-      }
+      window.gaEvent('Interact/ParagraphOutput', data.note.name, '1');
+
     } else if (op === 'PARAGRAPH_UPDATE_OUTPUT') {
       $rootScope.$broadcast('updateParagraphOutput', data);
     } else if (op === 'PROGRESS') {
@@ -183,16 +167,8 @@ function websocketEvents($rootScope, $websocket, $location, baseUrlSrv) {
     } else if (op === 'PARAGRAPH_ADDED') {
       $rootScope.$broadcast('addParagraph', data.paragraph, data.index);
       // analytics
-      try {
-        window.ga('send', {
-          hitType: 'event',
-          eventCategory: 'Zeppelin',
-          eventAction: 'Interact/ParagraphAdd',
-          eventLabel: data.note.name
-        });
-      } catch(e) {
-        console.log('Could not capture PARAGRAPH_ADDED event.', e);
-      }
+      window.gaEvent('Interact/ParagraphAdd', data.note.name, '1');
+
     } else if (op === 'PARAGRAPH_REMOVED') {
       $rootScope.$broadcast('removeParagraph', data.id);
     } else if (op === 'PARAGRAPH_MOVED') {
