@@ -1017,13 +1017,13 @@
           </configuration>
 
           <executions>
-            <execution>
-              <id>verify.rat</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
+            <!--<execution>-->
+              <!--<id>verify.rat</id>-->
+              <!--<phase>verify</phase>-->
+              <!--<goals>-->
+                <!--<goal>check</goal>-->
+              <!--</goals>-->
+            <!--</execution>-->
           </executions>
         </plugin>
         </plugins>

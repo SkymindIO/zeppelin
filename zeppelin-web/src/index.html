@@ -97,6 +97,23 @@ limitations under the License.
     <div ng-controller="RenameCtrl">
       <div ng-include src="'components/rename/rename.html'"></div>
     </div>
+
+    <!-- analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-48811288-7"></script>
+    <script>
+      try {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        gtag('js', new Date());
+        gtag('config', 'UA-48811288-7');
+
+      } catch(e) {
+        console.log('Analytics loading failed. You are likely offline.');
+      }
+    </script>
+
+
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
