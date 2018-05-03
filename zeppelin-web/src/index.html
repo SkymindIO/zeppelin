@@ -98,22 +98,6 @@ limitations under the License.
       <div ng-include src="'components/rename/rename.html'"></div>
     </div>
 
-    <!-- analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-48811288-7"></script>
-    <script>
-      try {
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-
-        gtag('js', new Date());
-        gtag('config', 'UA-48811288-7');
-
-      } catch(e) {
-        console.log('Analytics loading failed. You are likely offline.');
-      }
-    </script>
-
-
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
@@ -192,5 +176,31 @@ limitations under the License.
     <script src="bower_components/ngclipboard/dist/ngclipboard.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
+
+    <!-- analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-48811288-7"></script>
+    <script>
+      try {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        gtag('js', new Date());
+        gtag('config', 'UA-48811288-7');
+
+      } catch(e) {
+        console.log('Analytics loading failed. You are likely offline.');
+      }
+
+      window.gaEvent = function(ea, el, ev) {
+        try {
+          $.post('https://www.google-analytics.com/batch', {v: 1, tid: 'UA-48811288-7', cid: 555, t: 'event', ec: 'Zeppelin', ea: ea, el: el, ev: ev});
+        } catch(e) {
+          console.log('A problem occurred when sending an event.', e);
+        }
+      }
+
+      window.gaEvent('View/App', 'AppLoad', '1');
+    </script>
+    <!-- endanalytics -->
   </body>
 </html>
