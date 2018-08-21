@@ -24,7 +24,7 @@
   <groupId>org.apache.zeppelin</groupId>
   <artifactId>zeppelin</artifactId>
   <packaging>pom</packaging>
-  <version>0.7.3_skil-1.1.0</version>
+  <version>0.7.3_skil-1.2.0</version>
   <name>Zeppelin</name>
   <description>Zeppelin project</description>
   <url>http://zeppelin.apache.org</url>
@@ -149,7 +149,7 @@
     <PermGen>64m</PermGen>
     <MaxPermGen>512m</MaxPermGen>
 
-    <skil-version>1.0.2</skil-version>
+    <skil-version>1.2.0-SNAPSHOT</skil-version>
   </properties>
 
   <dependencyManagement>
