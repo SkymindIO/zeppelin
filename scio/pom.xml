@@ -29,7 +29,7 @@
   <groupId>org.apache.zeppelin</groupId>
   <artifactId>0.7.3_skil-1.2.0</artifactId>
   <packaging>jar</packaging>
-  <version>0.7.3_skil-1.1.0</version>
+  <version>0.7.3_skil-1.2.0</version>
   <name>Zeppelin: Scio</name>
   <description>Zeppelin Scio support</description>
 
