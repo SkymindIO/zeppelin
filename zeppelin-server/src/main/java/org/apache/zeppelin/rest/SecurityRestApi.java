@@ -18,7 +18,10 @@
 package org.apache.zeppelin.rest;
 
 
+import io.skymind.auth.JWTUtil;
+import io.skymind.auth.model.UserEntity;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.realm.ldap.JndiLdapRealm;
@@ -36,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -74,6 +78,38 @@ public class SecurityRestApi {
       currentUser.getSession().stop();
       currentUser.logout();
       return new JsonResponse(Response.Status.FORBIDDEN, "", "").build();
+    }
+
+    if (token1 != null && !token1.isEmpty() && LoginRestApi.getCurrentUser() != null) {
+      try {
+        UserEntity userEntity = JWTUtil.decodeToken(token1);
+
+        if (!userEntity.getUserId().equals(LoginRestApi.getCurrentUser().getUserId())) {
+          Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
+          TicketContainer.instance.removeTicket(SecurityUtils.getPrincipal());
+          currentUser.getSession().stop();
+//          currentUser.logout();
+//
+          UsernamePasswordToken token =
+                  new UsernamePasswordToken(userEntity.getUserName(), userEntity.getPassword());
+
+          currentUser.getSession(true);
+          currentUser.login(token);
+          String principal = userEntity.getUserId();
+          String ticket = TicketContainer.instance.getTicket(principal);
+          HashSet<String> roles = SecurityUtils.getRoles();
+
+
+          Map<String, String> data = new HashMap<>();
+          data.put("principal", userEntity.getUserId());
+          data.put("roles", roles.toString());
+          data.put("ticket", ticket);
+          return new JsonResponse(Response.Status.OK, "", data).build();
+        }
+      } catch (IOException e) {
+        LOG.warn(e.getMessage(), e);
+      }
+
     }
 
     ZeppelinConfiguration conf = ZeppelinConfiguration.create();
@@ -129,7 +165,7 @@ public class SecurityRestApi {
             rolesList.addAll(getUserListObj.getRolesList((LdapRealm) realm));
           } else if (name.equals("org.apache.zeppelin.realm.ActiveDirectoryGroupRealm")) {
             usersList.addAll(getUserListObj.getUserList((ActiveDirectoryGroupRealm) realm,
-                searchText));
+                    searchText));
           } else if (name.equals("org.apache.shiro.realm.jdbc.JdbcRealm")) {
             usersList.addAll(getUserListObj.getUserList((JdbcRealm) realm));
           }

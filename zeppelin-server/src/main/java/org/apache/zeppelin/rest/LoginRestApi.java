@@ -78,6 +78,8 @@ public class LoginRestApi {
   private static final Logger LOG = LoggerFactory.getLogger(LoginRestApi.class);
   private static List<LoginSource> loginSuccessList = new ArrayList<>();
 
+  private static UserEntity currentUser = null;
+
   /**
    * Required by Swagger.
    */
@@ -125,6 +127,7 @@ public class LoginRestApi {
       data.put("roles", roles.toString());
       data.put("ticket", ticket);
       response = new JsonResponse(Response.Status.OK, "", data);
+      LoginRestApi.currentUser = userEntity;
       this.addSource(LoginSource.SKIL_TOKEN);
     }
     return response.build();
@@ -231,6 +234,10 @@ public class LoginRestApi {
     LOG.warn(response.toString());
     this.removeSource(LoginSource.LOGIN_FORM);
     return response.build();
+  }
+
+  public static UserEntity getCurrentUser() {
+    return currentUser;
   }
 
 }
