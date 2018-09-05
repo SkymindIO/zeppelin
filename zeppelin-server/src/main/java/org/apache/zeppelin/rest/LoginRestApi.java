@@ -120,7 +120,9 @@ public class LoginRestApi {
       currentUser.getSession(true);
       currentUser.login(token);
       String principal = SecurityUtils.getPrincipal();
-      HashSet<String> roles = SecurityUtils.getRoles();
+
+      HashSet<String> roles = new HashSet<>();
+      roles.add(userEntity.getRole().toString());
       String ticket = TicketContainer.instance.getTicket(principal);
       Map<String, String> data = new HashMap<>();
       data.put("principal", principal);
@@ -161,7 +163,8 @@ public class LoginRestApi {
         currentUser.getSession(true);
         currentUser.login(token);
 
-        HashSet<String> roles = SecurityUtils.getRoles();
+        HashSet<String> roles = new HashSet<>();
+        roles.add(LoginRestApi.currentUser.getRole().toString());
         String principal = SecurityUtils.getPrincipal();
         String ticket;
         if ("anonymous".equals(principal))

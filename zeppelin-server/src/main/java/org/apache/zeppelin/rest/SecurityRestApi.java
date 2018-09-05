@@ -97,8 +97,9 @@ public class SecurityRestApi {
           currentUser.login(token);
           String principal = userEntity.getUserId();
           String ticket = TicketContainer.instance.getTicket(principal);
-          HashSet<String> roles = SecurityUtils.getRoles();
 
+          HashSet<String> roles = new HashSet<>();
+          roles.add(userEntity.getRole().toString());
 
           Map<String, String> data = new HashMap<>();
           data.put("principal", userEntity.getUserId());
