@@ -164,7 +164,11 @@ public class LoginRestApi {
         currentUser.login(token);
 
         HashSet<String> roles = new HashSet<>();
-        roles.add(LoginRestApi.currentUser.getRole().toString());
+        if (LoginRestApi.currentUser != null) {
+          roles.add(LoginRestApi.currentUser.getRole().toString());
+        } else {
+          roles = SecurityUtils.getRoles();
+        }
         String principal = SecurityUtils.getPrincipal();
         String ticket;
         if ("anonymous".equals(principal))
