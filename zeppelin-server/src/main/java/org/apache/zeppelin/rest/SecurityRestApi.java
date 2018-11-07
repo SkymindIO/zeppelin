@@ -18,8 +18,11 @@
 package org.apache.zeppelin.rest;
 
 
-import io.skymind.auth.JWTUtil;
-import io.skymind.auth.model.UserEntity;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.skymind.auth.model.User;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.realm.Realm;
@@ -31,6 +34,7 @@ import org.apache.zeppelin.annotation.ZeppelinApi;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.realm.ActiveDirectoryGroupRealm;
 import org.apache.zeppelin.realm.LdapRealm;
+import org.apache.zeppelin.server.JsonExclusionStrategy;
 import org.apache.zeppelin.server.JsonResponse;
 import org.apache.zeppelin.ticket.TicketContainer;
 import org.apache.zeppelin.utils.SecurityUtils;
@@ -39,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -81,36 +84,36 @@ public class SecurityRestApi {
     }
 
     if (token1 != null && !token1.isEmpty() && LoginRestApi.getCurrentUser() != null) {
-      try {
-        UserEntity userEntity = JWTUtil.decodeToken(token1);
+      DecodedJWT decoded = JWT.decode(token1);
+      GsonBuilder gsonBuilder = new GsonBuilder();
+      gsonBuilder.setExclusionStrategies(new JsonExclusionStrategy());
+      Gson gson = gsonBuilder.create();
+      User user = gson.fromJson(decoded.getSubject(), User.class);
 
-        if (!userEntity.getUserId().equals(LoginRestApi.getCurrentUser().getUserId())) {
-          Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
-          TicketContainer.instance.removeTicket(SecurityUtils.getPrincipal());
-          currentUser.getSession().stop();
-//          currentUser.logout();
-//
-          UsernamePasswordToken token =
-                  new UsernamePasswordToken(userEntity.getUserName(), userEntity.getPassword());
+      if (!user.getUserId().equals(LoginRestApi.getCurrentUser().getUserId())) {
+        Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
+        TicketContainer.instance.removeTicket(SecurityUtils.getPrincipal());
+        currentUser.getSession().stop();
 
-          currentUser.getSession(true);
-          currentUser.login(token);
-          String principal = userEntity.getUserId();
-          String ticket = TicketContainer.instance.getTicket(principal);
+        UsernamePasswordToken token = new UsernamePasswordToken(
+            user.getUserName(),
+            user.getPassword()
+        );
 
-          HashSet<String> roles = new HashSet<>();
-          roles.add(userEntity.getRole().toString());
+        currentUser.getSession(true);
+        currentUser.login(token);
+        String principal = user.getUserId();
+        String ticket = TicketContainer.instance.getTicket(principal);
 
-          Map<String, String> data = new HashMap<>();
-          data.put("principal", userEntity.getUserId());
-          data.put("roles", roles.toString());
-          data.put("ticket", ticket);
-          return new JsonResponse(Response.Status.OK, "", data).build();
-        }
-      } catch (IOException e) {
-        LOG.warn(e.getMessage(), e);
+        HashSet<String> roles = new HashSet<>();
+        roles.add(user.getRole().toString());
+
+        Map<String, String> data = new HashMap<>();
+        data.put("principal", user.getUserId());
+        data.put("roles", roles.toString());
+        data.put("ticket", ticket);
+        return new JsonResponse(Response.Status.OK, "", data).build();
       }
-
     }
 
     ZeppelinConfiguration conf = ZeppelinConfiguration.create();

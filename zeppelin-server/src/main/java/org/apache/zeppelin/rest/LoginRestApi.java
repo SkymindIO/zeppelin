@@ -16,12 +16,18 @@
  */
 package org.apache.zeppelin.rest;
 
-import io.skymind.auth.JWTUtil;
-import io.skymind.auth.model.UserEntity;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.skymind.auth.model.User;
+import io.skymind.skil.daemon.client.SKILDaemonClient;
+import io.skymind.skil.daemon.service.ServiceInfo;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
 import org.apache.zeppelin.annotation.ZeppelinApi;
 import org.apache.zeppelin.notebook.NotebookAuthorization;
+import org.apache.zeppelin.server.JsonExclusionStrategy;
 import org.apache.zeppelin.server.JsonResponse;
 import org.apache.zeppelin.ticket.TicketContainer;
 import org.apache.zeppelin.utils.SecurityUtils;
@@ -78,7 +84,8 @@ public class LoginRestApi {
   private static final Logger LOG = LoggerFactory.getLogger(LoginRestApi.class);
   private static List<LoginSource> loginSuccessList = new ArrayList<>();
 
-  private static UserEntity currentUser = null;
+  private static User currentUser = null;
+  private static String currentUserToken = null;
 
   /**
    * Required by Swagger.
@@ -103,18 +110,49 @@ public class LoginRestApi {
     return loginSuccessList.contains(loginSource);
   }
 
+  private boolean isValidSkilToken(String token) {
+    if (currentUserToken != null && currentUserToken.equals(token)) {
+      return true;
+    }
+
+    try {
+
+      String agentUrl = System.getProperty("service.agentUrl");
+
+      SKILDaemonClient client = new SKILDaemonClient(agentUrl);
+      client.setAuthToken(token);
+      List<ServiceInfo> services = client.services();
+
+      String serviceId = System.getProperty("service.id");
+      for (ServiceInfo service : services) {
+        if (serviceId.equalsIgnoreCase(service.getId())) {
+          return true;
+        }
+      }
+    } catch (Exception e) {
+      LOG.warn("Unable to verify SKIL Token.", e);
+    }
+
+    return false;
+  }
+
   @GET
   @ZeppelinApi
   public Response login(@HeaderParam("token") String token1) throws IOException {
     JsonResponse response = null;
 
-    if (token1 == null) {
-      response = new JsonResponse(Response.Status.FORBIDDEN, "", "");
-    } else if (JWTUtil.isValidToken(token1)){
-      UserEntity userEntity = JWTUtil.decodeToken(token1);
-      UsernamePasswordToken token =
-              new UsernamePasswordToken(userEntity.getUserName(), userEntity.getPassword());
-      //      token.setRememberMe(true);
+    if (token1 != null && isValidSkilToken(token1)) {
+      DecodedJWT decodedJWT = JWT.decode(token1);
+      String subject = decodedJWT.getSubject();
+      GsonBuilder gsonBuilder = new GsonBuilder();
+      gsonBuilder.setExclusionStrategies(new JsonExclusionStrategy());
+      Gson gson = gsonBuilder.create();
+      User user = gson.fromJson(subject, User.class);
+      UsernamePasswordToken token = new UsernamePasswordToken(
+              user.getUserName(),
+              user.getPassword()
+      );
+
       Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
       currentUser.getSession().stop();
       currentUser.getSession(true);
@@ -122,16 +160,19 @@ public class LoginRestApi {
       String principal = SecurityUtils.getPrincipal();
 
       HashSet<String> roles = new HashSet<>();
-      roles.add(userEntity.getRole().toString());
+      roles.add(user.getRole().toString());
       String ticket = TicketContainer.instance.getTicket(principal);
       Map<String, String> data = new HashMap<>();
       data.put("principal", principal);
       data.put("roles", roles.toString());
       data.put("ticket", ticket);
       response = new JsonResponse(Response.Status.OK, "", data);
-      LoginRestApi.currentUser = userEntity;
+      LoginRestApi.currentUser = user;
       this.addSource(LoginSource.SKIL_TOKEN);
+    } else {
+      response = new JsonResponse(Response.Status.FORBIDDEN, "", "");
     }
+
     return response.build();
   }
 
@@ -197,7 +238,7 @@ public class LoginRestApi {
           if (splitAuthHeader.length != 2) {
             errMsg = "NOT a valid authorization header for SKIL apis access";
             throw new AuthenticationException(errMsg);
-          } else if (!JWTUtil.isValidToken(splitAuthHeader[1])){
+          } else if (!isValidSkilToken(splitAuthHeader[1])){
             errMsg = "NOT a valid JWT token in the authorization header for SKIL apis access";
             throw new AuthenticationException(errMsg);
           }
@@ -243,7 +284,7 @@ public class LoginRestApi {
     return response.build();
   }
 
-  public static UserEntity getCurrentUser() {
+  public static User getCurrentUser() {
     return currentUser;
   }
 

@@ -24,7 +24,7 @@
   <groupId>org.apache.zeppelin</groupId>
   <artifactId>zeppelin</artifactId>
   <packaging>pom</packaging>
-  <version>0.7.3_skil-1.2.0</version>
+  <version>0.7.3_skil-1.2.1</version>
   <name>Zeppelin</name>
   <description>Zeppelin project</description>
   <url>http://zeppelin.apache.org</url>
@@ -53,14 +53,14 @@
     <repository>
       <id>skymind-nexus</id>
       <name>Skymind Nexus SKIL</name>
-      <url>https://nexus.skymind.io/repository/skil/</url>
+      <url>https://nexus.skymind.io/repository/skil-staging/</url>
     </repository>
   </repositories>
 
   <distributionManagement>
     <repository>
       <id>skymind-nexus</id>
-      <url>https://nexus.skymind.io/repository/skil-staging/</url>
+      <url>https://nexus.skymind.io/repository/skil-staging</url>
     </repository>
   </distributionManagement>
 
@@ -150,6 +150,7 @@
     <MaxPermGen>512m</MaxPermGen>
 
     <skil-version>1.2.0-SNAPSHOT</skil-version>
+    <java.jwt.version>3.2.0</java.jwt.version>
   </properties>
 
   <dependencyManagement>

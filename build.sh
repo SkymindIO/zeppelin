@@ -14,5 +14,5 @@
 # See the License for the specific language governing permissions and     
 # limitations under the License.                                          
 
-mvn clean package deploy -Pbuild-distr -Pspark-1.6 -Phadoop-2.4 -Pyarn -Ppyspark -Psparkr -DskipTests
+mvn -o clean package deploy -Pbuild-distr -Pspark-1.6 -Phadoop-2.4 -Pyarn -Ppyspark -Psparkr -DskipTests
 
