@@ -221,11 +221,7 @@ public class LoginRestApi {
             throw new AuthenticationException(errMsg);
           }
 
-          if (userName == null || password == null || password.equalsIgnoreCase("null")) {
-            return login(splitAuthHeader[1]);
-          } else {
-            this.addSource(LoginSource.SKIL_API);
-          }
+          this.addSource(LoginSource.SKIL_API);
         }
 
         UsernamePasswordToken token = new UsernamePasswordToken(userName, password);
@@ -271,8 +267,6 @@ public class LoginRestApi {
       } catch (AuthenticationException ae) {
         //unexpected condition - error?
         LOG.error("Exception in login: ", ae);
-      } catch (IOException e) {
-        e.printStackTrace();
       }
     }
 
