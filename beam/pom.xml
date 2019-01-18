@@ -33,8 +33,8 @@
     <name>Zeppelin: Beam interpreter</name>
 
     <properties>
-        <beam.hadoop.version>${hadoop.version}</beam.hadoop.version>
-        <beam.spark.version>${spark.version}</beam.spark.version>
+        <beam.hadoop.version>2.3.0</beam.hadoop.version>
+        <beam.spark.version>1.6.2</beam.spark.version>
         <beam.beam.version>0.2.0-incubating</beam.beam.version>
 
         <!-- library versions -->
@@ -237,21 +237,21 @@
         <profile>
             <id>hadoop-0.23</id>
             <properties>
-                <hadoop.version>0.23.10</hadoop.version>
+                <beam.hadoop.version>0.23.10</beam.hadoop.version>
             </properties>
         </profile>
 
         <profile>
             <id>hadoop-1</id>
             <properties>
-                <hadoop.version>1.0.4</hadoop.version>
+                <beam.hadoop.version>1.0.4</beam.hadoop.version>
             </properties>
         </profile>
 
         <profile>
             <id>hadoop-2.2</id>
             <properties>
-                <hadoop.version>2.2.0</hadoop.version>
+                <beam.hadoop.version>2.2.0</beam.hadoop.version>
             </properties>
         </profile>
 
@@ -261,63 +261,63 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <hadoop.version>2.3.0</hadoop.version>
+                <beam.hadoop.version>2.3.0</beam.hadoop.version>
             </properties>
         </profile>
 
         <profile>
             <id>hadoop-2.4</id>
             <properties>
-                <hadoop.version>2.4.0</hadoop.version>
+                <beam.hadoop.version>2.4.0</beam.hadoop.version>
             </properties>
         </profile>
 
         <profile>
             <id>hadoop-2.6</id>
             <properties>
-                <hadoop.version>2.6.0</hadoop.version>
+                <beam.hadoop.version>2.6.0</beam.hadoop.version>
             </properties>
         </profile>
 
         <profile>
             <id>hadoop-2.7</id>
             <properties>
-                <hadoop.version>2.7.2</hadoop.version>
+                <beam.hadoop.version>2.7.2</beam.hadoop.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-1.1</id>
             <properties>
-                <spark.version>1.1.1</spark.version>
+                <beam.spark.version>1.1.1</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-1.2</id>
             <properties>
-                <spark.version>1.2.1</spark.version>
+                <beam.spark.version>1.2.1</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-1.3</id>
             <properties>
-                <spark.version>1.3.1</spark.version>
+                <beam.spark.version>1.3.1</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-1.4</id>
             <properties>
-                <spark.version>1.4.1</spark.version>
+                <beam.spark.version>1.4.1</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-1.5</id>
             <properties>
-                <spark.version>1.5.2</spark.version>
+                <beam.spark.version>1.5.2</beam.spark.version>
             </properties>
         </profile>
 
@@ -327,28 +327,28 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spark.version>1.6.2</spark.version>
+                <beam.spark.version>1.6.2</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-2.0</id>
             <properties>
-                <spark.version>2.0.2</spark.version>
+                <beam.spark.version>2.0.2</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-2.1</id>
             <properties>
-                <spark.version>2.1.0</spark.version>
+                <beam.spark.version>2.1.0</beam.spark.version>
             </properties>
         </profile>
 
         <profile>
             <id>spark-2.2</id>
             <properties>
-                <spark.version>2.2.0</spark.version>
+                <beam.spark.version>2.2.0</beam.spark.version>
             </properties>
         </profile>
     </profiles>
