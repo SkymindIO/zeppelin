@@ -403,7 +403,7 @@
     <dependency>
       <groupId>ai.skymind</groupId>
       <artifactId>skil-apis</artifactId>
-      <version>${skil-version}</version>
+      <version>${skil.version}</version>
       <scope>provided</scope>
     </dependency>
 
