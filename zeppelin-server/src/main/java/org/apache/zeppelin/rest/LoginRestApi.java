@@ -21,6 +21,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.skymind.auth.model.User;
+import io.skymind.auth.shiro.SkilToken;
 import io.skymind.skil.daemon.client.SKILDaemonClient;
 import io.skymind.skil.daemon.service.ServiceInfo;
 import org.apache.shiro.authc.*;
@@ -148,20 +149,27 @@ public class LoginRestApi {
       gsonBuilder.setExclusionStrategies(new JsonExclusionStrategy());
       Gson gson = gsonBuilder.create();
       User user = gson.fromJson(subject, User.class);
-      UsernamePasswordToken token = new UsernamePasswordToken(
-              user.getUserName(),
-              user.getPassword()
-      );
+
+      SkilToken token = new SkilToken(token1);
 
       Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
       currentUser.getSession().stop();
       currentUser.getSession(true);
       currentUser.login(token);
-      String principal = SecurityUtils.getPrincipal();
 
       HashSet<String> roles = new HashSet<>();
-      roles.add(user.getRole().toString());
-      String ticket = TicketContainer.instance.getTicket(principal);
+      if (LoginRestApi.currentUser != null) {
+        roles.add(LoginRestApi.currentUser.getRole().toString());
+      } else {
+        roles = SecurityUtils.getRoles();
+      }
+      String principal = SecurityUtils.getPrincipal();
+      String ticket;
+      if ("anonymous".equals(principal))
+        ticket = "anonymous";
+      else
+        ticket = TicketContainer.instance.getTicket(principal);
+
       Map<String, String> data = new HashMap<>();
       data.put("principal", principal);
       data.put("roles", roles.toString());
@@ -173,6 +181,7 @@ public class LoginRestApi {
       response = new JsonResponse(Response.Status.FORBIDDEN, "", "");
     }
 
+    LOG.warn(response.toString());
     return response.build();
   }
 
@@ -197,6 +206,24 @@ public class LoginRestApi {
     }
     if (!currentUser.isAuthenticated()) {
       try {
+        // check post login request come from Zeppelin login form or SKIL apis
+        if (authHeader == null || authHeader.isEmpty()) {
+          this.addSource(LoginSource.LOGIN_FORM);
+        } else {
+          // check if the auth header is valid or not
+          String[] splitAuthHeader = authHeader.split(" ");
+          String errMsg = null;
+          if (splitAuthHeader.length != 2) {
+            errMsg = "NOT a valid authorization header for SKIL apis access";
+            throw new AuthenticationException(errMsg);
+          } else if (!isValidSkilToken(splitAuthHeader[1])) {
+            errMsg = "NOT a valid JWT token in the authorization header for SKIL apis access";
+            throw new AuthenticationException(errMsg);
+          }
+
+          this.addSource(LoginSource.SKIL_API);
+        }
+
         UsernamePasswordToken token = new UsernamePasswordToken(userName, password);
         //      token.setRememberMe(true);
 
@@ -227,24 +254,6 @@ public class LoginRestApi {
 
         //set roles for user in NotebookAuthorization module
         NotebookAuthorization.getInstance().setRoles(principal, roles);
-
-        // check post login request come from Zeppelin login form or SKIL apis
-        if (authHeader == null || authHeader.isEmpty()) {
-          this.addSource(LoginSource.LOGIN_FORM);
-        } else {
-          // check if the auth header is valid or not
-          String[] splitAuthHeader = authHeader.split(" ");
-          String errMsg = null;
-          if (splitAuthHeader.length != 2) {
-            errMsg = "NOT a valid authorization header for SKIL apis access";
-            throw new AuthenticationException(errMsg);
-          } else if (!isValidSkilToken(splitAuthHeader[1])){
-            errMsg = "NOT a valid JWT token in the authorization header for SKIL apis access";
-            throw new AuthenticationException(errMsg);
-          }
-
-          this.addSource(LoginSource.SKIL_API);
-        }
 
       } catch (UnknownAccountException uae) {
         //username wasn't in the system, show them an error message?
