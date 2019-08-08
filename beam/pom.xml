@@ -351,6 +351,13 @@
                 <beam.spark.version>2.2.0</beam.spark.version>
             </properties>
         </profile>
+
+        <profile>
+            <id>spark-2.4</id>
+            <properties>
+                <beam.spark.version>2.4.0</beam.spark.version>
+            </properties>
+        </profile>
     </profiles>
 
     <build>

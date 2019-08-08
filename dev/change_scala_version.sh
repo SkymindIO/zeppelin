@@ -46,7 +46,7 @@ check_scala_version "${TO_VERSION}"
 
 if [ "${TO_VERSION}" = "2.11" ]; then
   FROM_VERSION="2.10"
-  SCALA_LIB_VERSION="2.11.7"
+  SCALA_LIB_VERSION="2.11.12"
 else
   FROM_VERSION="2.11"
   SCALA_LIB_VERSION="2.10.5"

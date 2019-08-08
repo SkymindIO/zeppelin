@@ -546,6 +546,19 @@
     </profile>
 
     <profile>
+      <id>spark-2.4</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <spark.version>2.4.0</spark.version>
+        <protobuf.version>3.9.1</protobuf.version>
+        <py4j.version>0.10.8.1</py4j.version>
+        <package.spark.suffix>spark-2.4</package.spark.suffix>
+      </properties>
+    </profile>
+
+    <profile>
       <id>hadoop-0.23</id>
       <!-- SPARK-1121: Adds an explicit dependency on Avro to work around a
         Hadoop 0.23.X issue -->
