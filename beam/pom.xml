@@ -282,7 +282,7 @@
         <profile>
             <id>hadoop-2.7</id>
             <properties>
-                <beam.hadoop.version>2.7.2</beam.hadoop.version>
+                <beam.hadoop.version>2.7.3</beam.hadoop.version>
             </properties>
         </profile>
 

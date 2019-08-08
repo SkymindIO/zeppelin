@@ -36,7 +36,7 @@
     <!--library versions-->
     <postgresql.version>9.4-1201-jdbc41</postgresql.version>
     <jline.version>2.12.1</jline.version>
-    <hadoop.common.version>2.7.2</hadoop.common.version>
+    <hadoop.common.version>2.7.3</hadoop.common.version>
     <h2.version>1.4.190</h2.version>
     <commons.dbcp2.version>2.0.1</commons.dbcp2.version>
 
